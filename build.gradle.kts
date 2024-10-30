@@ -16,6 +16,12 @@ tasks.withType<Test> {
     useJUnitPlatform()
 }
 
+java {
+    toolchain {
+          languageVersion.set(JavaLanguageVersion.of(8))
+    }
+}
+
 dependencies {
     implementation(gradleApi())
     implementation("com.sebastian-daschner:jaxrs-analyzer:0.17")
