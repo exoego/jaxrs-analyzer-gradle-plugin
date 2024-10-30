@@ -3,9 +3,9 @@ package functional
 import java.io.File
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.io.TempDir
+import kotlin.test.Test
+import kotlin.test.BeforeTest
 
 class JaxRsAnalyzerPluginFunctionalTest {
     @TempDir
@@ -15,7 +15,7 @@ class JaxRsAnalyzerPluginFunctionalTest {
     lateinit var resourceFile: File
     lateinit var appFile: File
 
-    @BeforeEach
+    @BeforeTest
     fun setup() {
         buildFile = File(testProjectDir, "build.gradle.kts")
         buildFile.writeText(
