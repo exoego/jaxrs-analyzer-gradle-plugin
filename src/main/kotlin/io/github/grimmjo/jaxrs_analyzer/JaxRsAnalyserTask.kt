@@ -2,16 +2,14 @@ package io.github.grimmjo.jaxrs_analyzer
 
 import com.sebastian_daschner.jaxrs_analyzer.JAXRSAnalyzer
 import com.sebastian_daschner.jaxrs_analyzer.backend.swagger.SwaggerOptions
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
-import org.gradle.kotlin.dsl.listProperty
-import org.gradle.kotlin.dsl.property
 import java.nio.file.Path
 import kotlin.io.path.deleteIfExists
-
 
 /**
  * JaxRsAnalyserTask
@@ -20,8 +18,9 @@ import kotlin.io.path.deleteIfExists
 @CacheableTask
 abstract class JaxRsAnalyserTask : DefaultTask() {
 
-    @get:Input
-    abstract val mainSourceSet: Property<SourceSet>
+    private val mainSourceSet: SourceSet by lazy {
+        project.extensions.getByType(SourceSetContainer::class.java).getByName(SourceSet.MAIN_SOURCE_SET_NAME)
+    }
 
     @get:Input
     abstract val backend: ListProperty<String>
@@ -44,17 +43,18 @@ abstract class JaxRsAnalyserTask : DefaultTask() {
     @get:Input
     abstract val tagPathOffset: Property<Number>
 
+    private fun Iterable<File>.nonEmptyPaths() = this.filter { it.exists() }.map { it.toPath() }
+
     @TaskAction
     fun analyse() {
         val analysis = JAXRSAnalyzer.Analysis()
         analysis.setProjectName(project.name)
         analysis.setProjectVersion(project.version.toString())
 
-        mainSourceSet.get().compileClasspath.forEach { analysis.addClassPath(it.toPath()) }
-        mainSourceSet.get().runtimeClasspath.forEach { analysis.addClassPath(it.toPath()) }
-        mainSourceSet.get().allSource.sourceDirectories.forEach { analysis.addProjectSourcePath(it.toPath()) }
-        mainSourceSet.get().output.classesDirs.forEach { analysis.addProjectClassPath(it.toPath()) }
-
+        mainSourceSet.compileClasspath.nonEmptyPaths().forEach { analysis.addClassPath(it) }
+        mainSourceSet.runtimeClasspath.nonEmptyPaths().forEach { analysis.addClassPath(it) }
+        mainSourceSet.allSource.sourceDirectories.nonEmptyPaths().forEach { analysis.addProjectSourcePath(it) }
+        mainSourceSet.output.classesDirs.nonEmptyPaths().forEach { analysis.addProjectClassPath(it) }
 
         backend.get().forEach {
             analysis.backend = JAXRSAnalyzer.constructBackend(it)

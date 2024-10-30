@@ -2,8 +2,6 @@ package io.github.grimmjo.jaxrs_analyzer
 
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.tasks.SourceSet
-import org.gradle.api.tasks.SourceSetContainer
 
 /**
  * JaxRsAnalyzerPlugin
@@ -16,9 +14,6 @@ class JaxRsAnalyzerPlugin : Plugin<Project> {
 
         project.tasks.register("analyze", JaxRsAnalyserTask::class.java) {
             dependsOn += project.tasks.named("classes")
-            mainSourceSet.set(
-                project.extensions.getByType(SourceSetContainer::class.java).getByName(SourceSet.MAIN_SOURCE_SET_NAME)
-            )
             backend.set(jaxRsAnalyzerExtension.backend)
             outputFileBaseName.set(jaxRsAnalyzerExtension.outputFileBaseName)
             schemes.set(jaxRsAnalyzerExtension.schemes)
